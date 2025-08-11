@@ -140,10 +140,15 @@ class CleanTerminalUI:
             icon = '🚀'
             color = self.colors['green']
             impact_text = f"Saves {abs(impact)} min/day"
+        elif impact < 0:
+            # Negative impact means it saves time (even if not marked productive)
+            icon = '✅'
+            color = self.colors['green']
+            impact_text = f"Saves {abs(impact)} min/day"
         else:
             icon = '⚠️'
             color = self.colors['yellow']
-            impact_text = f"Costs {impact} min/day"
+            impact_text = f"Costs {impact} min/day" if impact > 0 else "Neutral"
         
         print(f"\n  {icon} {self.colors['bold']}{apps[0]} ↔ {apps[1]}{self.colors['reset']}")
         print(f"     {color}• {context.capitalize()} pattern{self.colors['reset']}")
@@ -161,17 +166,8 @@ class CleanTerminalUI:
     
     def metric_summary(self, metrics: Dict):
         """Display metrics in a clean summary"""
-        if not metrics:
-            return
-        
-        print(f"\n{self.colors['gray']}┌─ Performance ─────────────┐{self.colors['reset']}")
-        if 'time' in metrics:
-            print(f"{self.colors['gray']}│{self.colors['reset']} Time: {metrics['time']:.1f}s")
-        if 'cost' in metrics:
-            print(f"{self.colors['gray']}│{self.colors['reset']} Cost: ${metrics['cost']:.4f}")
-        if 'tokens' in metrics:
-            print(f"{self.colors['gray']}│{self.colors['reset']} Tokens: {metrics['tokens']:,}")
-        print(f"{self.colors['gray']}└───────────────────────────┘{self.colors['reset']}")
+        # Skip metric display for clean output
+        return
     
     def final_summary(self):
         """Show final tool usage summary"""
@@ -221,8 +217,9 @@ class UserFriendlyDemo:
             db_path = None
         
         if not self.auto_mode:
-            print(f"\n{self.ui.colors['cyan']}Press Enter to begin analysis...{self.ui.colors['reset']}", end='')
-            input()
+            print(f"\n{self.ui.colors['cyan']}This demo will analyze your productivity patterns in 5 phases.{self.ui.colors['reset']}")
+            print(f"{self.ui.colors['cyan']}You'll be prompted before each phase.{self.ui.colors['reset']}")
+            input(f"\n{self.ui.colors['bold']}{self.ui.colors['cyan']}➡️  Press Enter to begin...{self.ui.colors['reset']}")
         
         # Run analysis
         await self._run_analysis(db_path)
@@ -331,6 +328,9 @@ class UserFriendlyDemo:
     
     async def _detect_patterns(self, data: Dict) -> Dict:
         """Detect patterns with clean output"""
+        if not self.auto_mode:
+            input(f"\n{self.ui.colors['bold']}{self.ui.colors['cyan']}➡️  Press Enter to continue to Phase 1: Pattern Detection...{self.ui.colors['reset']}")
+        
         self.ui.agent_status("Pattern Detective", "starting")
         
         start_time = time.time()
@@ -471,6 +471,9 @@ Identify death loops and classify as productive or distracting."""
     
     async def _learn_context(self, patterns: Dict) -> Dict:
         """Learn context with minimal output"""
+        if not self.auto_mode:
+            input(f"\n{self.ui.colors['bold']}{self.ui.colors['cyan']}➡️  Press Enter to continue to Phase 2: Context Learning...{self.ui.colors['reset']}")
+        
         self.ui.agent_status("Context Learner", "starting")
         
         start_time = time.time()
@@ -497,6 +500,9 @@ Identify death loops and classify as productive or distracting."""
     
     async def _design_interventions(self, patterns: Dict, context: Dict) -> List[Dict]:
         """Design interventions with clean output"""
+        if not self.auto_mode:
+            input(f"\n{self.ui.colors['bold']}{self.ui.colors['cyan']}➡️  Press Enter to continue to Phase 3: Intervention Design...{self.ui.colors['reset']}")
+        
         self.ui.agent_status("Intervention Designer", "starting")
         
         start_time = time.time()
@@ -530,6 +536,9 @@ Identify death loops and classify as productive or distracting."""
     
     async def _generate_code(self, interventions: List[Dict]) -> Dict:
         """Generate code with clean output"""
+        if not self.auto_mode:
+            input(f"\n{self.ui.colors['bold']}{self.ui.colors['cyan']}➡️  Press Enter to continue to Phase 4: Code Generation...{self.ui.colors['reset']}")
+        
         self.ui.agent_status("Code Generator", "starting")
         
         start_time = time.time()
@@ -552,6 +561,9 @@ Identify death loops and classify as productive or distracting."""
     
     async def _calculate_impact(self, patterns: Dict, interventions: List[Dict]) -> Dict:
         """Calculate impact with clean output"""
+        if not self.auto_mode:
+            input(f"\n{self.ui.colors['bold']}{self.ui.colors['cyan']}➡️  Press Enter to continue to Phase 5: Impact Analysis...{self.ui.colors['reset']}")
+        
         self.ui.agent_status("Impact Analyst", "starting")
         
         start_time = time.time()
