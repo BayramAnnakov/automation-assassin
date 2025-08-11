@@ -691,6 +691,156 @@ Provide realistic daily and yearly time savings."""
         
         return {}
     
+    async def _create_fallback_automations(self, interventions: List[Dict]):
+        """Create fallback automation scripts when AI fails or times out"""
+        os.makedirs("automations", exist_ok=True)
+        
+        # Create split-screen optimizer for productive patterns
+        split_screen_code = """-- Split-Screen Optimizer for Cursor IDE ↔ Safari
+-- Auto-arranges windows for optimal web development testing
+
+local splitScreenOptimizer = {}
+splitScreenOptimizer.enabled = true
+
+-- Watch for app switches between Cursor and Safari
+local appWatcher = hs.application.watcher.new(function(appName, eventType, appObject)
+    if not splitScreenOptimizer.enabled then return end
+    
+    if eventType == hs.application.watcher.activated then
+        if appName == "Cursor" or appName == "Safari" then
+            -- Check if both apps are running
+            local cursor = hs.application.find("Cursor")
+            local safari = hs.application.find("Safari")
+            
+            if cursor and safari then
+                -- Arrange windows in split-screen
+                local screen = hs.screen.mainScreen()
+                local screenFrame = screen:frame()
+                
+                -- Cursor on left (60% width for code)
+                local cursorWindow = cursor:mainWindow()
+                if cursorWindow then
+                    cursorWindow:setFrame({
+                        x = screenFrame.x,
+                        y = screenFrame.y,
+                        w = screenFrame.w * 0.6,
+                        h = screenFrame.h
+                    })
+                end
+                
+                -- Safari on right (40% width for preview)
+                local safariWindow = safari:mainWindow()
+                if safariWindow then
+                    safariWindow:setFrame({
+                        x = screenFrame.x + (screenFrame.w * 0.6),
+                        y = screenFrame.y,
+                        w = screenFrame.w * 0.4,
+                        h = screenFrame.h
+                    })
+                end
+                
+                -- Show notification
+                hs.notify.new({
+                    title = "Split-Screen Optimizer",
+                    informativeText = "Windows arranged for web development"
+                }):send()
+            end
+        end
+    end
+end)
+
+appWatcher:start()
+return splitScreenOptimizer
+"""
+        
+        # Create communication batcher for distractions
+        comm_batcher_code = """-- Communication Batcher for Slack ↔ Chrome
+-- Batches notifications to reduce context switching
+
+local commBatcher = {}
+commBatcher.batchInterval = 30 * 60 -- 30 minutes in seconds
+commBatcher.pendingNotifications = {}
+commBatcher.focusMode = false
+
+-- Block Slack notifications during focus time
+local slackWatcher = hs.application.watcher.new(function(appName, eventType, appObject)
+    if eventType == hs.application.watcher.activated then
+        if appName == "Slack" and commBatcher.focusMode then
+            -- Switch back to previous app
+            hs.timer.doAfter(0.1, function()
+                local previousApp = hs.application.frontmostApplication()
+                if previousApp and previousApp:name() ~= "Slack" then
+                    previousApp:activate()
+                end
+            end)
+            
+            -- Queue notification
+            table.insert(commBatcher.pendingNotifications, {
+                time = os.time(),
+                app = "Slack"
+            })
+            
+            -- Show batching notification
+            hs.notify.new({
+                title = "Communication Batcher",
+                informativeText = "Slack batched. Check in " .. 
+                    math.floor(commBatcher.batchInterval / 60) .. " minutes"
+            }):send()
+        end
+    end
+end)
+
+-- Timer to release batched notifications
+hs.timer.doEvery(commBatcher.batchInterval, function()
+    if #commBatcher.pendingNotifications > 0 then
+        hs.notify.new({
+            title = "Batched Communications",
+            informativeText = #commBatcher.pendingNotifications .. 
+                " messages waiting in Slack"
+        }):send()
+        commBatcher.pendingNotifications = {}
+    end
+end)
+
+slackWatcher:start()
+return commBatcher
+"""
+        
+        # Write the files
+        try:
+            with open("automations/split_screen_optimizer.lua", "w") as f:
+                f.write(split_screen_code)
+            print("   ✅ Created: split_screen_optimizer.lua")
+            
+            with open("automations/communication_batcher.lua", "w") as f:
+                f.write(comm_batcher_code)
+            print("   ✅ Created: communication_batcher.lua")
+            
+            # Create main init.lua
+            init_code = """-- Automation Assassin - Main Configuration
+-- Load all intervention modules
+
+local modules = {
+    splitScreen = require("split_screen_optimizer"),
+    commBatcher = require("communication_batcher")
+}
+
+-- Show loaded notification
+hs.notify.new({
+    title = "Automation Assassin",
+    informativeText = "Death loop interventions activated"
+}):send()
+
+return modules
+"""
+            
+            with open("automations/init.lua", "w") as f:
+                f.write(init_code)
+            print("   ✅ Created: init.lua")
+            
+        except Exception as e:
+            print(f"   ⚠️ Error creating files: {e}")
+    
     def _prepare_usage_summary(self, recent_usage: List) -> str:
         """Prepare usage data summary for AI analysis"""
         if not recent_usage:
