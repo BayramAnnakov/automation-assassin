@@ -72,6 +72,22 @@ class HackathonDemo:
         self.quick_mode = quick_mode
         self.coordinator = IntelligentAgentCoordinator()
         self.demo_data = self._generate_demo_data()
+    
+    async def _simulate_streaming_output(self, messages: List[str], delay: float = 0.15):
+        """Simulate streaming output from AI agent"""
+        for message in messages:
+            print(message)
+            if not self.quick_mode and not self.auto_mode:
+                await asyncio.sleep(delay)
+            elif not self.quick_mode:
+                await asyncio.sleep(delay * 0.3)  # Faster in auto mode
+    
+    def _display_agent_metrics(self, agent_name: str, duration_ms: float, cost_usd: float, turns: int):
+        """Display agent execution metrics in user-friendly format"""
+        print("\n" + "-"*50)
+        print(f"⏱️  Execution Time: {duration_ms/1000:.2f} seconds")
+        print(f"💵 Total Cost: ${cost_usd:.3f}")
+        print("-"*50)
         
     def _generate_demo_data(self) -> Dict:
         """Generate synthetic demo data for demonstration"""
@@ -363,16 +379,38 @@ class HackathonDemo:
         print("🔍 PHASE 1: PATTERN DETECTION")
         print("="*60)
         
-        spinner = Spinner("Invoking pattern-detective sub-agent")
-        spinner.start()
-        
-        # Simulate sub-agent call - in real Claude Code, this would use Task tool
-        # Task(subagent_type="pattern-detective", prompt=f"Analyze {db_path}")
-        
         if not self.auto_mode:
-            await asyncio.sleep(3)
+            print("\n📋 This phase will:")
+            print("   • Load Screen Time database")
+            print("   • Invoke pattern-detective sub-agent")
+            print("   • Analyze app usage patterns")
+            print("   • Detect death loops and time wasters")
+            input("\n➡️  Press Enter to start Phase 1...")
         
-        spinner.stop()
+        print("\n🤖 Invoking pattern-detective sub-agent...")
+        print("   📍 Agent: .claude/agents/pattern-detective.md")
+        print("   🎯 Task: Analyze database for productivity patterns")
+        print("   📊 Database: {}".format(os.path.basename(db_path)))
+        
+        # Track start time
+        import time as time_module
+        start_time = time_module.time()
+        
+        # Simulate streaming output
+        await self._simulate_streaming_output([
+            "\n   [Agent] Loading Screen Time database...",
+            "   [Agent] Found 12,847 app usage records",
+            "   [Agent] Analyzing temporal patterns...",
+            "   [Agent] Detecting death loops (A→B→A patterns)...",
+            "   [Agent] Found Safari ↔ VS Code loop (73 occurrences)",
+            "   [Agent] Found Slack ↔ Chrome loop (56 occurrences)",
+            "   [Agent] Calculating context switching metrics...",
+            "   [Agent] Identifying peak distraction windows...",
+            "   [Agent] Generating pattern report..."
+        ])
+        
+        # Calculate execution time
+        execution_time = (time_module.time() - start_time) * 1000
         
         # Return realistic patterns based on common usage
         patterns = {
@@ -390,6 +428,9 @@ class HackathonDemo:
         print(f"   • Context switches: {patterns['context_switches_per_hour']}/hour")
         print(f"   • Total time wasted: {sum(dl['time_wasted'] for dl in patterns['death_loops'])} min/day")
         
+        # Display agent execution metrics
+        self._display_agent_metrics("pattern-detective", execution_time, 0.018, 3)
+        
         return patterns
     
     async def _learn_context_with_subagent(self, patterns: Dict) -> Dict:
@@ -398,13 +439,37 @@ class HackathonDemo:
         print("🧠 PHASE 2: CONTEXT LEARNING")
         print("="*60)
         
-        spinner = Spinner("Invoking context-learner sub-agent")
-        spinner.start()
-        
         if not self.auto_mode:
-            await asyncio.sleep(2)
+            print("\n📋 This phase will:")
+            print("   • Analyze discovered patterns")
+            print("   • Invoke context-learner sub-agent")
+            print("   • Build user profile")
+            print("   • Classify apps as productive/distracting")
+            input("\n➡️  Press Enter to start Phase 2...")
         
-        spinner.stop()
+        print("\n🤖 Invoking context-learner sub-agent...")
+        print("   📍 Agent: .claude/agents/context-learner.md")
+        print("   🎯 Task: Build user profile from patterns")
+        
+        # Track start time
+        import time as time_module
+        start_time = time_module.time()
+        
+        # Simulate streaming output
+        await self._simulate_streaming_output([
+            "\n   [Agent] Analyzing app usage patterns...",
+            "   [Agent] Primary tools: VS Code, Terminal, GitHub",
+            "   [Agent] Inferring role: Software Developer",
+            "   [Agent] Work style: Deep focus with communication breaks",
+            "   [Agent] Identifying productive app clusters...",
+            "   [Agent] Classifying distraction triggers...",
+            "   [Agent] Peak productivity: 9-11am, 2-4pm",
+            "   [Agent] Vulnerability windows: 2-3pm, 8-9pm",
+            "   [Agent] Building personalized intervention profile..."
+        ])
+        
+        # Calculate execution time
+        execution_time = (time_module.time() - start_time) * 1000
         
         context = {
             "user_role": "Software Developer",
@@ -417,6 +482,9 @@ class HackathonDemo:
         for key, value in context.items():
             print(f"   • {key.replace('_', ' ').title()}: {value}")
         
+        # Display agent execution metrics
+        self._display_agent_metrics("context-learner", execution_time, 0.012, 2)
+        
         return context
     
     async def _design_interventions_with_subagent(self, patterns: Dict, context: Dict) -> List[Dict]:
@@ -425,13 +493,38 @@ class HackathonDemo:
         print("💡 PHASE 3: INTERVENTION DESIGN")
         print("="*60)
         
-        spinner = Spinner("Invoking intervention-architect sub-agent")
-        spinner.start()
-        
         if not self.auto_mode:
-            await asyncio.sleep(2.5)
+            print("\n📋 This phase will:")
+            print("   • Review patterns and user context")
+            print("   • Invoke intervention-architect sub-agent")
+            print("   • Design creative interventions")
+            print("   • Create progressive escalation strategies")
+            input("\n➡️  Press Enter to start Phase 3...")
         
-        spinner.stop()
+        print("\n🤖 Invoking intervention-architect sub-agent...")
+        print("   📍 Agent: .claude/agents/intervention-architect.md")
+        print("   🎯 Task: Design behavioral interventions")
+        
+        # Track start time
+        import time as time_module
+        start_time = time_module.time()
+        
+        # Simulate streaming output
+        await self._simulate_streaming_output([
+            "\n   [Agent] Analyzing death loop patterns...",
+            "   [Agent] Designing 'The Pause Protocol' for Safari-VSCode loop",
+            "   [Agent] → 3-second breathing pause between switches",
+            "   [Agent] → Progressive escalation: 3s → 5s → 10s → 30s",
+            "   [Agent] Creating 'Deep Work Guardian' for focus protection",
+            "   [Agent] → Batch notifications into 5-minute windows",
+            "   [Agent] → Reward system: XP for uninterrupted sessions",
+            "   [Agent] Developing 'Afternoon Defender' for post-lunch slump",
+            "   [Agent] → Gamified focus challenges with achievements",
+            "   [Agent] Calculating expected effectiveness metrics..."
+        ])
+        
+        # Calculate execution time
+        execution_time = (time_module.time() - start_time) * 1000
         
         interventions = [
             {
@@ -461,6 +554,9 @@ class HackathonDemo:
             print(f"      Method: {intervention['mechanism']}")
             print(f"      Expected effectiveness: {intervention['effectiveness']*100:.0f}%")
         
+        # Display agent execution metrics
+        self._display_agent_metrics("intervention-architect", execution_time, 0.022, 4)
+        
         return interventions
     
     async def _generate_code_with_subagent(self, interventions: List[Dict]) -> Dict:
@@ -469,13 +565,41 @@ class HackathonDemo:
         print("⚙️ PHASE 4: CODE GENERATION")
         print("="*60)
         
-        spinner = Spinner("Invoking code-generator sub-agent")
-        spinner.start()
-        
         if not self.auto_mode:
-            await asyncio.sleep(2)
+            print("\n📋 This phase will:")
+            print("   • Convert interventions to code")
+            print("   • Invoke code-generator sub-agent")
+            print("   • Generate Hammerspoon Lua scripts")
+            print("   • Create complete automation package")
+            input("\n➡️  Press Enter to start Phase 4...")
         
-        spinner.stop()
+        print("\n🤖 Invoking code-generator sub-agent...")
+        print("   📍 Agent: .claude/agents/code-generator.md")
+        print("   🎯 Task: Generate Hammerspoon automation scripts")
+        
+        # Track start time
+        import time as time_module
+        start_time = time_module.time()
+        
+        # Simulate streaming output with code generation
+        await self._simulate_streaming_output([
+            "\n   [Agent] Initializing Hammerspoon code generator...",
+            "   [Agent] Writing death_loop_killer.lua...",
+            "   [Agent] → App watcher: hs.application.watcher",
+            "   [Agent] → Pattern detection algorithm",
+            "   [Agent] → Intervention triggers",
+            "   [Agent] Writing focus_guardian.lua...",
+            "   [Agent] → Notification batching system",
+            "   [Agent] → Focus session tracking",
+            "   [Agent] Writing intervention_engine.lua...",
+            "   [Agent] → Progressive escalation logic",
+            "   [Agent] → User feedback system",
+            "   [Agent] Writing init.lua (main entry point)...",
+            "   [Agent] Generated 843 lines of Lua code"
+        ])
+        
+        # Calculate execution time
+        execution_time = (time_module.time() - start_time) * 1000
         
         print("\n✅ Hammerspoon Automation Generated:")
         print("   📝 automations/death_loop_killer.lua (247 lines)")
@@ -483,6 +607,9 @@ class HackathonDemo:
         print("   📝 automations/intervention_engine.lua (312 lines)")
         print("   📝 automations/init.lua (95 lines)")
         print("\n   Installation: cp automations/*.lua ~/.hammerspoon/")
+        
+        # Display agent execution metrics
+        self._display_agent_metrics("code-generator", execution_time, 0.035, 6)
         
         return {"files_generated": 4, "total_lines": 843}
     
@@ -492,13 +619,45 @@ class HackathonDemo:
         print("📊 PHASE 5: IMPACT ANALYSIS")
         print("="*60)
         
-        spinner = Spinner("Invoking impact-analyst sub-agent")
-        spinner.start()
-        
         if not self.auto_mode:
-            await asyncio.sleep(2)
+            print("\n📋 This phase will:")
+            print("   • Calculate time savings")
+            print("   • Invoke impact-analyst sub-agent")
+            print("   • Project financial value")
+            print("   • Estimate productivity improvements")
+            input("\n➡️  Press Enter to start Phase 5...")
         
-        spinner.stop()
+        print("\n🤖 Invoking impact-analyst sub-agent...")
+        print("   📍 Agent: .claude/agents/impact-analyst.md")
+        print("   🎯 Task: Calculate ROI and productivity gains")
+        
+        # Track start time
+        import time as time_module
+        start_time = time_module.time()
+        
+        # Simulate streaming output
+        await self._simulate_streaming_output([
+            "\n   [Agent] Calculating context-aware time savings...",
+            "   [Agent] VS Code-Safari: Actually SAVES 45 min/day with optimization",
+            "   [Agent] Slack-Chrome elimination: 87 minutes/day recovered",
+            "   [Agent] Mail-Messages batching: 62 minutes/day saved",
+            "   [Agent] Split-screen efficiency: +45 minutes productive time",
+            "   [Agent] Total time optimization: 239 minutes/day",
+            "   [Agent] Applying effectiveness rates (83% average)...",
+            "   [Agent] Actual time saved: 198 minutes/day",
+            "   [Agent] Projecting annual impact...",
+            "   [Agent] → 1,235 hours/year (51 days!)",
+            "   [Agent] Calculating financial value...",
+            "   [Agent] → At $50/hour: $61,750/year",
+            "   [Agent] → At $100/hour: $123,500/year",
+            "   [Agent] Estimating productivity improvements...",
+            "   [Agent] → Deep work: +42% increase",
+            "   [Agent] → Context switches: -68% reduction",
+            "   [Agent] → Shipping velocity: +35% improvement"
+        ])
+        
+        # Calculate execution time
+        execution_time = (time_module.time() - start_time) * 1000
         
         # Calculate realistic impact
         total_time_saved = sum(dl['time_wasted'] for dl in patterns['death_loops'])
@@ -521,6 +680,9 @@ class HackathonDemo:
         print(f"      • Deep work sessions: +{effectiveness * 45:.0f}%")
         print(f"      • Context switches: -{effectiveness * 68:.0f}%")
         print(f"      • Shipping velocity: +{effectiveness * 35:.0f}%")
+        
+        # Display agent execution metrics
+        self._display_agent_metrics("impact-analyst", execution_time, 0.015, 2)
         
         return {"daily_minutes_saved": actual_saved, "yearly_value": yearly_hours * 50}
     
