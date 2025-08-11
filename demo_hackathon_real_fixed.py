@@ -731,7 +731,6 @@ Provide realistic daily and yearly time savings."""
         print("\n" + "="*70)
         print("✅ REAL AI DEMO COMPLETE")
         print("="*70)
-        print("\n🚀 This was genuine AI analysis, not hardcoded responses!")
         print("💡 The insights and interventions were created by Claude AI")
         print("📝 Cursor IDE ↔ Safari recognized as productive workflow")
         print("\n🙏 Thank you for watching real AI in action!")
