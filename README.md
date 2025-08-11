@@ -1,46 +1,58 @@
 # 🎯 Automation Assassin
 
-**AI-Powered Death Loop Intervention System for macOS**
+**Real AI-Powered Death Loop Intervention System for macOS**
 
 > Stop death loops. Save time. Ship more code.
 
-Automation Assassin uses AI to analyze your macOS Screen Time data, detect productivity-killing patterns (death loops), and automatically generate Hammerspoon interventions that actually work.
+Automation Assassin uses **Claude AI and Claude Code SDK** to analyze your macOS Screen Time data, intelligently detect productivity patterns, and automatically generate context-aware interventions. Unlike simple blockers, it understands the difference between productive workflows (VS Code ↔ Safari for web testing) and true distractions (Slack ↔ Chrome rabbit holes).
 
 ## 🚀 Features
 
-- **🔍 Death Loop Detection**: Identifies repetitive app-switching patterns that waste hours daily
-- **🤖 AI-Powered Analysis**: Uses Claude Code SDK for intelligent pattern interpretation
-- **🛡️ Real Interventions**: Generates Hammerspoon scripts that actually block distracting apps
-- **📊 Zero Setup**: Works instantly with your existing Screen Time data
-- **💰 Measurable Impact**: Shows exact time and money saved
+- **🤖 Real Claude AI Analysis**: Genuine AI that understands context, not pattern matching
+- **🧠 Intelligent Pattern Recognition**: Knows VS Code ↔ Safari is web testing, not procrastination
+- **🎯 Context-Aware Interventions**: Enhances productive patterns, blocks only true distractions
+- **💻 Live Code Generation**: AI writes actual Hammerspoon automation scripts
+- **📊 Real-Time Analysis**: Processes your actual Screen Time database
+- **💰 Accurate Impact Calculation**: AI calculates real ROI based on your specific patterns
 
-## 📸 What It Does
+## 📸 What Makes It Different
 
-Death loops are repetitive patterns that destroy productivity:
-- Slack ↔ Chrome (checking messages while browsing)
-- Twitter ↔ Safari (social media rabbit holes)  
-- Discord ↔ YouTube (entertainment loops)
+**Traditional blockers:** "Block Safari during work hours"  
+**Automation Assassin:** "VS Code ↔ Safari is web development testing - enhance it with split-screen and hot reload. But Slack ↔ Chrome is a distraction - batch those messages."
 
-The system detects these patterns and creates interventions that break them in real-time.
+The AI understands context:
+- **Productive Patterns** → Enhanced with better tools (MCP servers, split-screen, automation)
+- **True Death Loops** → Intelligently interrupted (batching, pausing, redirecting)
+- **Context Switching** → Minimized through smart scheduling
 
-## 🎬 Quick Demo
+## 🎬 Live AI Demo
 
+### Real AI Analysis (Recommended)
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Install Claude Code SDK
+pip install claude-code-sdk
 
-# Run the demo (2.5 minutes)
-python demo.py
+# Set your API key
+export ANTHROPIC_API_KEY=your-api-key
 
-# Quick test mode (no delays)
-python demo.py --quick
+# Run REAL AI demo (makes actual API calls)
+python demo_hackathon_real.py
+
+# Auto mode (no confirmations)
+python demo_hackathon_real.py --auto
 ```
 
-The demo shows:
-1. Screen Time analysis
-2. Death loop detection
-3. Intervention generation
-4. Projected impact (time & money saved)
+### Quick Simulation Demo
+```bash
+# Run simulation (no API calls needed)
+python demo_hackathon_live.py --quick
+```
+
+The real demo shows:
+1. **Actual AI thinking** - See Claude analyze your data in real-time
+2. **Intelligent pattern recognition** - AI understands context, not just patterns
+3. **Live code generation** - Watch AI write Hammerspoon scripts
+4. **Real metrics** - Actual API costs, tokens, and processing time
 
 ## 🔧 Installation
 
@@ -79,23 +91,32 @@ cp ~/Library/Application\ Support/Knowledge/knowledgeC.db ./data/screentime_data
 
 ```
 automation-assassin/
+├── .claude/
+│   └── agents/          # Claude Code sub-agent definitions
+│       ├── pattern-detective.md      # Analyzes Screen Time data
+│       ├── context-learner.md        # Builds user profiles
+│       ├── intervention-architect.md # Designs interventions
+│       ├── code-generator.md         # Creates Lua scripts
+│       └── impact-analyst.md         # Calculates ROI
 ├── src/
-│   ├── agents/           # AI orchestration with Claude SDK
+│   ├── agents/          # AI orchestration with Claude SDK
 │   ├── core/            # Pattern detection & analysis
-│   └── interventions/   # Hammerspoon script generation
-├── automations/         # Generated intervention scripts
-│   └── example.lua     # Example Hammerspoon automation
-├── demo.py             # Main demo script
-└── web/               # Visualization dashboard
+│   └── interventions/   # Intervention system
+├── automations/         # AI-generated Hammerspoon scripts
+│   └── example.lua      # Example intervention template
+├── demo_hackathon_real.py  # REAL AI demo (recommended)
+├── demo_hackathon_live.py  # Simulation demo
+└── tests/fixtures/      # Sample Screen Time database
 ```
 
 ## 🛠️ How It Works
 
 1. **Data Collection**: Reads macOS Screen Time database (knowledgeC.db)
-2. **Pattern Analysis**: AI agents detect death loops and productivity patterns
-3. **Context Understanding**: Analyzes browser history to understand intent
-4. **Intervention Design**: Creates targeted Hammerspoon automations
-5. **Real-time Protection**: Blocks apps and breaks patterns as they occur
+2. **AI Pattern Analysis**: Claude AI analyzes your actual usage patterns
+3. **Context Understanding**: AI distinguishes productive workflows from distractions
+4. **Smart Intervention Design**: AI creates context-aware interventions
+5. **Code Generation**: AI writes actual Hammerspoon Lua scripts
+6. **Real-time Protection**: Enhances productivity, blocks only true distractions
 
 ## 📈 Expected Impact
 
@@ -113,14 +134,15 @@ Based on average usage patterns:
 - **Claude Code SDK**: Multi-agent AI orchestration
 - **Web Dashboard**: Real-time visualization
 
-## 🎯 Interventions Generated
+## 🎯 AI-Generated Interventions
 
-The system creates several types of interventions:
+The AI creates context-aware interventions:
 
-1. **Death Loop Breaker**: Detects A→B→A→B patterns and intervenes
-2. **Focus Mode**: Limits access to productive apps only
-3. **Break Reminder**: Enforces healthy work/break cycles
-4. **App Blocker**: Time-based blocking of distracting apps
+1. **Split-Screen Optimizer**: Enhances VS Code ↔ Safari workflow with automation
+2. **Communication Batching**: Groups Slack messages to reduce interruptions
+3. **Context-Aware Focus Mode**: Allows productive patterns, blocks distractions
+4. **Test Automation Suggester**: Recommends tools to reduce manual testing
+5. **Progressive Interventions**: Gentle nudges → firm boundaries
 
 See `automations/example.lua` for a complete intervention template.
 
