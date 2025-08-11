@@ -83,3 +83,28 @@ tests/fixtures/screentime_test.db-shm
 tests/fixtures/screentime_test.db-wal
 tests/fixtures/safari_history.db-shm
 tests/fixtures/safari_history.db-wal
+
+# Personal analysis files
+august_interventions/
+*_august*.py
+*_august*.md
+analyze_august*.py
+blog_post_documentation.md
+mcp_recommendations.json
+personalized_interventions*.md
+mcp_automation_detector.py
+screentime_test.db
+
+# User-generated data (created when users run the tool)
+user_data/
+my_analysis/
+my_interventions/
+
+# Backup directory
+backup_personal_files/
+august_analysis_report.md
+august_patterns.json
+automation_assassin_generated.lua
+automation_assassin_insights.json
+test_results_report.md
+understanding_journey.md

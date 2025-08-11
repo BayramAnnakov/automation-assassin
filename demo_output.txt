@@ -1,0 +1,122 @@
+
+[1m🎯 Automation Assassin - Automated Demo[0m
+[90mNon-interactive demonstration with simulated user responses[0m
+
+[1m━━━ Phase 1: Loading Real Data (Last 7 Days) ━━━[0m
+
+Error loading Screen Time: [Errno 1] Operation not permitted: '/Users/bayramannakov/Library/Application Support/Knowledge/knowledgeC.db'
+Error loading Safari history: [Errno 1] Operation not permitted: '/Users/bayramannakov/Library/Safari/History.db'
+📊 Screen Time Analysis:
+  ✓ 10,169 records from last 7 days
+  ✓ Top apps: Safari, Cursor IDE, Slack, Chrome, Notes
+
+🌐 Browser History Analysis:
+  ✓ 322 visits analyzed
+
+  Category breakdown:
+    other           ███████████████████████████████████████████ 219.0%
+    communication   ████████████████████ 103.0%
+
+[1m━━━ Phase 2: AI-Powered Pattern Detection ━━━[0m
+
+
+🔍 [94mpattern-detective starting analysis...[0m
+   [90m📂 Reading Screen Time database...[0m
+   [90m🔎 Analyzing 10,169 records...[0m
+   [90m💭 Identifying death loops and patterns...[0m
+   [90m🌐 Checking browser context...[0m
+   [94m✅ Analysis complete[0m
+
+[1mPatterns Detected:[0m
+
+  1. 📝 Chrome ↔ Notes
+     • Frequency: 80 times
+     • Context: documentation
+
+[AUTOMATED] Providing context for pattern: Chrome ↔ Notes
+  → Context: Taking notes while researching documentation
+
+  2. 📱 Slack ↔ Chrome
+     • Frequency: 70 times
+     • Context: communication
+
+[AUTOMATED] Providing context for pattern: Slack ↔ Chrome
+  → Context: Looking up information during team discussions
+
+  3. 📝 Cursor IDE ↔ Slack
+     • Frequency: 60 times
+     • Context: productive
+
+[AUTOMATED] Providing context for pattern: Cursor IDE ↔ Slack
+  → Context: Context switching due to unclear task
+
+  4. 💻 Safari ↔ Cursor IDE
+     • Frequency: 50 times
+     • Context: development
+
+[1m━━━ Phase 3: User Profile Building ━━━[0m
+
+
+[AUTOMATED] Simulating user responses...
+  → Profession: Software Developer
+  → Work style: Deep focus with collaboration
+  → Productive apps: Cursor IDE, Terminal, GitHub
+  → Distraction apps: Twitter, YouTube, Discord
+  → Optimal hours: 9-11am, 2-4pm
+  → Stress indicators: Rapid app switching, social media loops
+
+🧠 [92mcontext-learner building profile...[0m
+   [90m🔍 Analyzing tool usage patterns...[0m
+   [90m💭 Determining profession: Software Developer[0m
+   [90m📊 Identifying work patterns...[0m
+   [92m✅ Profile complete[0m
+
+[1mUser Profile:[0m
+  • Profession: Software Developer (82% confidence)
+  • Work Style: Code-focused with testing cycles
+  • Optimal Hours: 9:00, 10:00, 14:00, 15:00
+
+[1m━━━ Phase 4: Root Cause Analysis ━━━[0m
+
+
+🫂 [95mroot-cause-analyzer examining deeper patterns...[0m
+
+   Analyzing: Chrome ↔ Notes
+   [90m💭 Checking stress indicators...[0m
+   [90m📈 Analyzing frequency patterns...[0m
+   [90m⚠️ High frequency = ingrained habit[0m
+
+   Analyzing: Slack ↔ Chrome
+   [90m💭 Checking stress indicators...[0m
+   [90m📈 Analyzing frequency patterns...[0m
+   [90m⚠️ High frequency + communication = stress response[0m
+
+   Analyzing: Cursor IDE ↔ Slack
+   [90m💭 Checking stress indicators...[0m
+   [90m📈 Analyzing frequency patterns...[0m
+   [90m⚠️ Cognitive overload suspected[0m
+
+   [95m✅ Root cause analysis complete[0m
+
+[1m━━━ Phase 5: Holistic Intervention Design ━━━[0m
+
+
+💡 [93mintervention-architect designing interventions...[0m
+
+============================================================
+🔍 Root Cause Analysis Complete
+   Pattern: Chrome ↔ Notes
+   Root Cause: Habit Formation
+   Confidence: 75%
+
+💡 Intervention Options:
+   1. 🔔 Habit awareness notifications
+   2. 💬 Habit replacement strategies
+   3. ⚙️ Automatic workflow improvements
+   4. 🚫 Temporary blocks during trigger times
+   5. 🌱 Environmental cue changes
+
+   0. Skip this pattern
+   *. Suggest your own intervention
+
+→ Select interventions (e.g., 1,3,5) or suggest your own: 
