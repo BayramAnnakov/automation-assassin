@@ -535,36 +535,57 @@ Return JSON array of interventions with name, target, mechanism, and type."""
             input("\n➡️  Press Enter to start Phase 4...")
         
         print("\n🤖 Calling Claude AI for code generation...")
-        print("   Note: Actual file creation disabled for demo")
+        print("   📝 Files will be created in automations/ directory")
         start_time = time.time()
         code_generated = False
+        files_created = []
+        
+        # Ensure automations directory exists
+        os.makedirs("automations", exist_ok=True)
         
         try:
             options = ClaudeCodeOptions(
                 permission_mode="bypassPermissions",
-                max_turns=3,
+                max_turns=10,
                 continue_conversation=True if self.session_id else False,
-                resume=self.session_id if self.session_id else None
+                resume=self.session_id if self.session_id else None,
+                allowed_tools=["Write", "Read", "Edit"]
             )
             
-            prompt = f"""Generate Hammerspoon Lua code snippets for these interventions:
+            prompt = f"""Generate real Hammerspoon Lua code for these interventions:
 {json.dumps(interventions[:2], indent=2)}
 
-Create working code examples that show the core logic."""
+Create actual working scripts in the automations/ directory:
+1. Create automations/split_screen_optimizer.lua for the first intervention
+2. Create automations/communication_batcher.lua for the second intervention
+3. Use the Write tool to create these files with complete, working Hammerspoon code
+
+Include proper Hammerspoon APIs like:
+- hs.application.watcher for app monitoring
+- hs.window for window management
+- hs.timer for scheduling
+- hs.notify for user notifications"""
 
             async def query_with_timeout():
-                nonlocal code_generated
+                nonlocal code_generated, files_created
                 async for message in query(prompt=prompt, options=options):
                     if isinstance(message, AssistantMessage):
                         for block in message.content:
-                            if hasattr(block, 'text'):
-                                if 'function' in block.text or 'local' in block.text:
-                                    code_generated = True
-                                    # Show snippet of generated code
-                                    lines = block.text.split('\n')[:5]
-                                    for line in lines:
-                                        if line.strip():
-                                            print(f"   [Code] {line}")
+                            # Check for Write tool usage
+                            if hasattr(block, 'name') and block.name == 'Write':
+                                if hasattr(block, 'input'):
+                                    file_path = block.input.get('file_path', '')
+                                    if file_path:
+                                        files_created.append(file_path)
+                                        print(f"   ✅ Created: {os.path.basename(file_path)}")
+                                        code_generated = True
+                            elif hasattr(block, 'text'):
+                                text = block.text.strip()
+                                if text and not text.startswith('{'):
+                                    # Show AI's thinking
+                                    first_line = text.split('\n')[0]
+                                    if first_line and len(first_line) > 10:
+                                        print(f"   [AI] {first_line[:100]}")
                     
                     if isinstance(message, ResultMessage):
                         self._track_metrics(message)
@@ -572,23 +593,32 @@ Create working code examples that show the core logic."""
             
             # Run with timeout
             try:
-                await asyncio.wait_for(query_with_timeout(), timeout=15.0)
+                await asyncio.wait_for(query_with_timeout(), timeout=30.0)
             except asyncio.TimeoutError:
-                print("   ⚠️ AI response timeout")
+                print("   ⚠️ AI response timeout - creating fallback files")
+                # Create fallback files
+                await self._create_fallback_automations(interventions)
             
-            if code_generated:
-                print("\n✅ AI Generated Lua Code Successfully")
-            else:
-                print("\n📝 Code generation simulated for demo")
+            if code_generated and files_created:
+                print(f"\n✅ AI Generated {len(files_created)} Lua Scripts:")
+                for file_path in files_created:
+                    print(f"   📝 {file_path}")
+                print("\n   Installation: cp automations/*.lua ~/.hammerspoon/")
+            elif not code_generated:
+                print("\n📝 Creating fallback automation scripts...")
+                await self._create_fallback_automations(interventions)
+                code_generated = True
             
         except Exception as e:
             print(f"   ❌ AI Error: {e}")
+            print("   📝 Creating fallback automation scripts...")
+            await self._create_fallback_automations(interventions)
         
         execution_time = (time.time() - start_time) * 1000
         print(f"\n⏱️  AI Processing Time: {execution_time/1000:.2f} seconds")
         print(f"💵 Total API Cost: ${self.total_cost:.4f}")
         
-        return {"code_generated": code_generated}
+        return {"code_generated": code_generated, "files": files_created}
     
     async def _calculate_impact_with_real_ai(self, patterns: Dict, interventions: List[Dict]) -> Dict:
         """REAL AI impact calculation using Claude Code SDK"""
