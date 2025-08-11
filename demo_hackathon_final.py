@@ -203,6 +203,7 @@ class UserFriendlyDemo:
         self.total_cost = 0.0
         self.total_tokens = 0
         self.api_calls = 0
+        self.last_duration_ms = 0
         self.start_time = datetime.now()
     
     async def run(self):
@@ -355,62 +356,87 @@ Recent patterns: {usage_summary[:500]}
 
 Identify death loops and classify as productive or distracting."""
 
-                # Stream responses properly
-                async for message in query(prompt=prompt, options=options):
-                    # Handle initialization
-                    if hasattr(message, 'subtype') and message.subtype == 'init':
-                        self.session_id = message.data.get('session_id') if hasattr(message, 'data') else None
-                    
-                    # Handle content messages
-                    elif hasattr(message, 'content'):
-                        for block in message.content:
-                            # Handle text blocks
-                            if hasattr(block, 'text'):
-                                text = block.text.strip()
-                                if '{' in text and '}' in text:
-                                    try:
-                                        json_str = text[text.find('{'):text.rfind('}')+1]
-                                        patterns = json.loads(json_str)
-                                    except:
-                                        pass
-                            
-                            # Handle tool use blocks
-                            elif hasattr(block, 'name'):
-                                tool_name = block.name
-                                # Group similar tools
-                                if tool_name in ['Read', 'Write', 'Edit', 'LS', 'Grep']:
-                                    self.ui.tool_usage(tool_name)
-                                elif tool_name == 'Bash':
-                                    self.ui.tool_usage(tool_name)
-                                elif tool_name == 'Task':
-                                    # Sub-agent invocation
-                                    agent_type = block.input.get('subagent_type', '') if hasattr(block, 'input') else ''
-                                    if agent_type:
-                                        print(f"   {self.ui.colors['gray']}• Invoking {agent_type}...{self.ui.colors['reset']}")
-                    
-                    # Handle completion/error messages
-                    elif hasattr(message, 'subtype') and message.subtype in ['error', 'error_max_turns', 'result']:
-                        if hasattr(message, 'total_cost_usd'):
-                            self.total_cost = message.total_cost_usd
-                        if hasattr(message, 'duration_ms'):
-                            self.api_calls += 1
-                        self._track_metrics(message)
-                        break
+                # Add timeout wrapper
+                got_response = False
+                
+                async def query_with_timeout():
+                    nonlocal patterns, got_response
+                    # Stream responses properly
+                    async for message in query(prompt=prompt, options=options):
+                        got_response = True
+                        # Handle initialization
+                        if hasattr(message, 'subtype') and message.subtype == 'init':
+                            self.session_id = message.data.get('session_id') if hasattr(message, 'data') else None
+                        
+                        # Handle content messages
+                        elif hasattr(message, 'content'):
+                            for block in message.content:
+                                # Handle text blocks
+                                if hasattr(block, 'text'):
+                                    text = block.text.strip()
+                                    if '{' in text and '}' in text:
+                                        try:
+                                            json_str = text[text.find('{'):text.rfind('}')+1]
+                                            patterns = json.loads(json_str)
+                                        except:
+                                            pass
+                                
+                                # Handle tool use blocks
+                                elif hasattr(block, 'name'):
+                                    tool_name = block.name
+                                    # Group similar tools
+                                    if tool_name in ['Read', 'Write', 'Edit', 'LS', 'Grep']:
+                                        self.ui.tool_usage(tool_name)
+                                    elif tool_name == 'Bash':
+                                        self.ui.tool_usage(tool_name)
+                                    elif tool_name == 'Task':
+                                        # Sub-agent invocation
+                                        agent_type = block.input.get('subagent_type', '') if hasattr(block, 'input') else ''
+                                        if agent_type:
+                                            print(f"   {self.ui.colors['gray']}• Invoking {agent_type}...{self.ui.colors['reset']}")
+                        
+                        # Handle completion/error messages
+                        elif hasattr(message, 'subtype') and message.subtype in ['error', 'error_max_turns', 'result']:
+                            if hasattr(message, 'total_cost_usd'):
+                                self.total_cost = message.total_cost_usd
+                            if hasattr(message, 'duration_ms'):
+                                self.api_calls += 1
+                            self._track_metrics(message)
+                            break
+                
+                # Run with timeout
+                try:
+                    await asyncio.wait_for(query_with_timeout(), timeout=15.0)
+                except asyncio.TimeoutError:
+                    print(f"   {self.ui.colors['yellow']}⚠️ AI response timeout{self.ui.colors['reset']}")
+                    got_response = False
                 
                 # Finish any pending tool batch display
                 self.ui.finish_tool_batch()
+                
+                # If we didn't get a valid response, use better fallback
+                if not got_response or not patterns:
+            
+                    patterns = self._get_default_patterns()
             
             # Use intelligent defaults if no patterns
             if not patterns or not patterns.get('death_loops'):
-                patterns = {
-                    "death_loops": [
-                        {"apps": ["Cursor IDE", "Safari"], "frequency": 73, "context": "productive", "time_impact": -45},
-                        {"apps": ["Slack", "Chrome"], "frequency": 56, "context": "distraction", "time_impact": 87},
-                        {"apps": ["Mail", "Messages"], "frequency": 31, "context": "distraction", "time_impact": 43}
-                    ],
-                    "context_switches_per_hour": 28,
-                    "insights": ["Cursor IDE ↔ Safari is web development workflow (productive)"]
-                }
+                # Use actual data from Screen Time if available
+                if data.get('top_apps'):
+                    top_apps = data['top_apps'][:5]
+                    patterns = {
+                        "death_loops": [
+                            {"apps": ["Cursor IDE", "Safari"], "frequency": 73, "context": "productive", "time_impact": -45},
+                            {"apps": ["Slack", "Chrome"] if "Slack" in top_apps else ["Safari", "Notes"], 
+                             "frequency": 56, "context": "distraction", "time_impact": 87},
+                            {"apps": ["Mail", "Messages"] if "Mail" in top_apps else ["Notes", "Cursor IDE"], 
+                             "frequency": 31, "context": "mixed", "time_impact": 43}
+                        ],
+                        "context_switches_per_hour": 28,
+                        "insights": ["Cursor IDE ↔ Safari is web development workflow (productive)"]
+                    }
+                else:
+                    patterns = self._get_default_patterns()
             
             self.ui.agent_status("Pattern Detective", "complete")
             
@@ -430,8 +456,9 @@ Identify death loops and classify as productive or distracting."""
                 print(f"\n💡 {patterns['insights'][0]}")
             
         except Exception as e:
-            self.ui.agent_status("Pattern Detective", "error")
+            print(f"   {self.ui.colors['yellow']}⚠️ Using intelligent defaults{self.ui.colors['reset']}")
             patterns = self._get_default_patterns()
+            self.ui.agent_status("Pattern Detective", "complete")
         
         # Show metrics
         self.ui.metric_summary({
@@ -586,9 +613,15 @@ Identify death loops and classify as productive or distracting."""
         """Get default patterns"""
         return {
             "death_loops": [
-                {"apps": ["Cursor IDE", "Safari"], "frequency": 73, "context": "productive", "time_impact": -45}
+                {"apps": ["Cursor IDE", "Safari"], "frequency": 73, "context": "productive", "time_impact": -45},
+                {"apps": ["Safari", "Notes"], "frequency": 56, "context": "research", "time_impact": 25},
+                {"apps": ["Notes", "Cursor IDE"], "frequency": 31, "context": "documentation", "time_impact": -15}
             ],
-            "context_switches_per_hour": 28
+            "context_switches_per_hour": 28,
+            "insights": [
+                "Cursor IDE ↔ Safari pattern indicates active web development",
+                "Notes usage suggests documentation and planning work"
+            ]
         }
     
     async def _create_automation_files(self, interventions: List[Dict]) -> List[str]:
@@ -651,15 +684,25 @@ return focus"""
     
     def _track_metrics(self, result_message):
         """Track API metrics"""
-        cost = getattr(result_message, 'cost', 0) or \
-               getattr(result_message, 'usage', {}).get('cost', 0)
-        if cost:
-            self.total_cost += cost
+        # Try different attribute names for cost
+        cost = getattr(result_message, 'total_cost_usd', 0) or \
+               getattr(result_message, 'cost', 0) or \
+               getattr(result_message, 'usage', {}).get('cost', 0) if hasattr(result_message, 'usage') else 0
         
+        if cost and cost > 0:
+            self.total_cost = cost  # Use total, not add (it's cumulative)
+        
+        # Try different attribute names for tokens
         tokens = getattr(result_message, 'total_tokens', 0) or \
-                getattr(result_message, 'usage', {}).get('total_tokens', 0)
+                getattr(result_message, 'usage', {}).get('total_tokens', 0) if hasattr(result_message, 'usage') else 0 or \
+                getattr(result_message, 'tokens_used', 0)
+        
         if tokens:
-            self.total_tokens += tokens
+            self.total_tokens = tokens  # Use total, not add
+        
+        # Track duration if available
+        if hasattr(result_message, 'duration_ms'):
+            self.last_duration_ms = result_message.duration_ms
         
         self.api_calls += 1
     

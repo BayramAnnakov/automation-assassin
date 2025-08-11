@@ -81,3 +81,5 @@ automations/*.lua
 !automations/example.lua
 tests/fixtures/screentime_test.db-shm
 tests/fixtures/screentime_test.db-wal
+tests/fixtures/safari_history.db-shm
+tests/fixtures/safari_history.db-wal
