@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Sensitive data
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+demo_logs/
+logs/
+
+# Test data
+tests/fixtures/*.db
+tests/fixtures/real_user_data.json
+tests/fixtures/test_inputs.json
+
+# Demo outputs
+demo_output/
+
+# Personal configurations
+interventions.json
+safari_cursor_interventions.json
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Documentation drafts
+*.draft.md
+CLAUDE_CODE_AGENTS.md
+CLAUDE_SDK_GUIDE.md
+SDK_SUBAGENTS_IMPLEMENTATION.md
+SUBAGENT_ARCHITECTURE.md
+HACKATHON_DEMO_GUIDE.md
+DEMO_README.md
+demo.md
+
+# Test files in root
+test_*.py
+
+# Knowledgebase
+knowledgebase/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Generated automation scripts (contain user-specific data)
+automations/*.lua
+!automations/example.lua

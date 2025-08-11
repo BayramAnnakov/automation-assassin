@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automation Assassin - Death Loop Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tagline {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 0.8s ease;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+        
+        .death-loop-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+        
+        .death-loop-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .loop-pattern {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .loop-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .intervention-status {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 30px;
+            text-align: center;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .time-saved-counter {
+            font-size: 3em;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            animation: countUp 2s ease;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+        
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+            margin-right: 5px;
+        }
+        
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+        
+        .impact-visual {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .impact-item {
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .impact-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .impact-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .impact-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Automation Assassin</h1>
+            <p class="tagline">Death Loop Intervention System | Zero Cold Start | Instant Value</p>
+        </header>
+        
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalApps">47</div>
+                <div class="stat-label">Apps Tracked</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="deathLoops">8</div>
+                <div class="stat-label">Death Loops</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="timeWasted">145</div>
+                <div class="stat-label">Minutes/Day Lost</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="interventions">4</div>
+                <div class="stat-label">Active Interventions</div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="card">
+                <h2>📊 Screen Time Analysis</h2>
+                <div class="chart-container">
+                    <canvas id="screenTimeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>🔄 Death Loop Patterns</h2>
+                <div id="deathLoopsList">
+                    <div class="death-loop-item">
+                        <span class="loop-pattern">Slack ↔ Chrome</span>
+                        <div class="loop-stats">
+                            <span>45 min/day</span>
+                            <span>Score: 82.3</span>
+                        </div>
+                    </div>
+                    <div class="death-loop-item">
+                        <span class="loop-pattern">Twitter ↔ Safari</span>
+                        <div class="loop-stats">
+                            <span>32 min/day</span>
+                            <span>Score: 67.8</span>
+                        </div>
+                    </div>
+                    <div class="death-loop-item">
+                        <span class="loop-pattern">Discord ↔ YouTube</span>
+                        <div class="loop-stats">
+                            <span>28 min/day</span>
+                            <span>Score: 54.2</span>
+                        </div>
+                    </div>
+                    <div class="death-loop-item">
+                        <span class="loop-pattern">Messages ↔ Mail</span>
+                        <div class="loop-stats">
+                            <span>18 min/day</span>
+                            <span>Score: 31.5</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2><span class="live-indicator"></span>Live Interventions</h2>
+                <div class="intervention-status">
+                    ⚡ BLOCKING ACTIVE
+                </div>
+                <div style="margin-top: 20px;">
+                    <p>✅ App Blocker: 5 apps blocked</p>
+                    <p>✅ Death Loop Breaker: Monitoring</p>
+                    <p>✅ Focus Mode: Ready (Cmd+Alt+F)</p>
+                    <p>✅ Break Reminder: Every 50 min</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>💰 Projected Impact</h2>
+                <div class="time-saved-counter" id="timeSaved">87</div>
+                <p style="text-align: center; opacity: 0.9;">Minutes Saved Today</p>
+                <div class="impact-visual">
+                    <div class="impact-item">
+                        <div class="impact-icon">📅</div>
+                        <div class="impact-value">10.2</div>
+                        <div class="impact-label">Hours/Week</div>
+                    </div>
+                    <div class="impact-item">
+                        <div class="impact-icon">📈</div>
+                        <div class="impact-value">530</div>
+                        <div class="impact-label">Hours/Year</div>
+                    </div>
+                    <div class="impact-item">
+                        <div class="impact-icon">💵</div>
+                        <div class="impact-value">$26.5k</div>
+                        <div class="impact-label">Value/Year</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" style="text-align: center;">
+            <h2>🏆 Productivity Score</h2>
+            <div class="chart-container" style="height: 200px;">
+                <canvas id="productivityChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Screen Time Chart
+        const ctx1 = document.getElementById('screenTimeChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['Chrome', 'Slack', 'VS Code', 'Twitter', 'Discord', 'Terminal'],
+                datasets: [{
+                    label: 'Hours This Week',
+                    data: [35.2, 24.7, 22.1, 12.3, 8.9, 6.4],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(153, 102, 255, 0.6)',
+                        'rgba(255, 159, 64, 0.6)'
+                    ],
+                    borderColor: 'rgba(255, 255, 255, 0.8)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Productivity Score Chart
+        const ctx2 = document.getElementById('productivityChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Today'],
+                datasets: [{
+                    label: 'Before Interventions',
+                    data: [45, 42, 38, 41, 35, 32],
+                    borderColor: 'rgba(255, 99, 132, 0.8)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    tension: 0.4
+                }, {
+                    label: 'After Interventions',
+                    data: [45, 42, 38, 41, 35, 78],
+                    borderColor: 'rgba(75, 192, 192, 0.8)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'white'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'white'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Animate time saved counter
+        function animateCounter() {
+            const counter = document.getElementById('timeSaved');
+            let current = 0;
+            const target = 87;
+            const increment = target / 50;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                counter.textContent = Math.floor(current);
+            }, 40);
+        }
+        
+        // Update stats periodically
+        function updateStats() {
+            // Simulate real-time updates
+            const deathLoops = document.getElementById('deathLoops');
+            const currentLoops = parseInt(deathLoops.textContent);
+            
+            // Randomly increase death loops detected
+            if (Math.random() > 0.7) {
+                deathLoops.textContent = currentLoops + 1;
+                
+                // Flash animation
+                deathLoops.style.animation = 'none';
+                setTimeout(() => {
+                    deathLoops.style.animation = 'pulse 2s infinite';
+                }, 10);
+            }
+        }
+        
+        // Start animations
+        setTimeout(animateCounter, 500);
+        setInterval(updateStats, 3000);
+        
+        // Add interactive effects
+        document.querySelectorAll('.death-loop-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.style.background = 'rgba(255, 100, 100, 0.3)';
+                setTimeout(() => {
+                    this.style.background = '';
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>

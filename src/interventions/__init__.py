@@ -1,0 +1,1 @@
+# Hammerspoon automation generators
