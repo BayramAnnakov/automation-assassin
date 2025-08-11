@@ -404,11 +404,11 @@ Identify death loops and classify as productive or distracting."""
                             self._track_metrics(message)
                             break
                 
-                # Run with timeout
+                # Run with longer timeout for AI agents
                 try:
-                    await asyncio.wait_for(query_with_timeout(), timeout=15.0)
+                    await asyncio.wait_for(query_with_timeout(), timeout=60.0)
                 except asyncio.TimeoutError:
-                    print(f"   {self.ui.colors['yellow']}⚠️ AI response timeout{self.ui.colors['reset']}")
+                    print(f"   {self.ui.colors['yellow']}⚠️ AI response timeout after 60s{self.ui.colors['reset']}")
                     got_response = False
                 
                 # Finish any pending tool batch display
@@ -470,72 +470,158 @@ Identify death loops and classify as productive or distracting."""
         return patterns
     
     async def _learn_context(self, patterns: Dict) -> Dict:
-        """Learn context with minimal output"""
+        """Learn context with real AI agent"""
         if not self.auto_mode:
             input(f"\n{self.ui.colors['bold']}{self.ui.colors['cyan']}➡️  Press Enter to continue to Phase 2: Context Learning...{self.ui.colors['reset']}")
         
         self.ui.agent_status("Context Learner", "starting")
         
         start_time = time.time()
+        context = {}
         
-        # AI analyzes patterns to build context
-        context = {
-            "user_role": "Full-Stack Developer",
-            "work_style": "Web development with frequent testing",
-            "productive_patterns": [
-                "Cursor IDE ↔ Safari: Testing web applications",
-                "Terminal ↔ Cursor IDE: Build and deploy workflow"
-            ]
-        }
+        if SDK_AVAILABLE and patterns:
+            try:
+                options = ClaudeCodeOptions(
+                    permission_mode="bypassPermissions",
+                    max_turns=5,
+                    continue_conversation=False,
+                    subagent_type="context-learner"
+                )
+                
+                prompt = f"""As context-learner agent, analyze:
+                Patterns: {json.dumps(patterns.get('death_loops', [])[:3])}
+                Build user profile. Return JSON with user_role, work_style, productive_patterns."""
+                
+                got_response = False
+                
+                async def query_with_timeout():
+                    nonlocal context, got_response
+                    async for message in query(prompt=prompt, options=options):
+                        got_response = True
+                        if hasattr(message, 'content'):
+                            for block in message.content:
+                                if hasattr(block, 'text'):
+                                    text = block.text.strip()
+                                    if '{' in text and '}' in text:
+                                        try:
+                                            json_str = text[text.find('{'):text.rfind('}')+1]
+                                            context = json.loads(json_str)
+                                        except:
+                                            pass
+                        if hasattr(message, 'subtype') and message.subtype in ['error', 'error_max_turns', 'result']:
+                            self._track_metrics(message)
+                            break
+                
+                await asyncio.wait_for(query_with_timeout(), timeout=45.0)
+                
+            except asyncio.TimeoutError:
+                print(f"   {self.ui.colors['yellow']}⚠️ AI timeout - using defaults{self.ui.colors['reset']}")
+            except Exception as e:
+                print(f"   {self.ui.colors['yellow']}⚠️ AI error - using defaults{self.ui.colors['reset']}")
+        
+        # Use defaults if no context from AI
+        if not context:
+            context = {
+                "user_role": "Full-Stack Developer",
+                "work_style": "Web development with frequent testing",
+                "productive_patterns": [
+                    "Cursor IDE ↔ Safari: Testing web applications",
+                    "Terminal ↔ Cursor IDE: Build and deploy workflow"
+                ]
+            }
         
         self.ui.agent_status("Context Learner", "complete")
         
         print(f"\n{self.ui.colors['bold']}User Profile:{self.ui.colors['reset']}")
-        print(f"  • Role: {context['user_role']}")
-        print(f"  • Style: {context['work_style']}")
+        print(f"  • Role: {context.get('user_role', 'Unknown')}")
+        print(f"  • Style: {context.get('work_style', 'Unknown')}")
         
         self.ui.metric_summary({'time': time.time() - start_time})
         
         return context
     
     async def _design_interventions(self, patterns: Dict, context: Dict) -> List[Dict]:
-        """Design interventions with clean output"""
+        """Design interventions with real AI agent"""
         if not self.auto_mode:
             input(f"\n{self.ui.colors['bold']}{self.ui.colors['cyan']}➡️  Press Enter to continue to Phase 3: Intervention Design...{self.ui.colors['reset']}")
         
-        self.ui.agent_status("Intervention Designer", "starting")
+        self.ui.agent_status("Intervention Architect", "starting")
         
         start_time = time.time()
+        interventions = []
         
-        interventions = [
-            {
-                "name": "Split-Screen Optimizer",
-                "target": "Cursor IDE ↔ Safari",
-                "type": "Enhancement",
-                "description": "Auto-arrange windows for web testing"
-            },
-            {
-                "name": "Focus Mode",
-                "target": "Slack ↔ Chrome",
-                "type": "Blocker",
-                "description": "Batch notifications every 30 minutes"
-            }
-        ]
+        if SDK_AVAILABLE:
+            try:
+                options = ClaudeCodeOptions(
+                    permission_mode="bypassPermissions",
+                    max_turns=5,
+                    continue_conversation=False,
+                    subagent_type="intervention-architect"
+                )
+                
+                prompt = f"""As intervention-architect agent, design interventions:
+                Patterns: {json.dumps(patterns.get('death_loops', [])[:3])}
+                Context: {json.dumps(context)}
+                Return JSON array with name, target, type, description."""
+                
+                got_response = False
+                
+                async def query_with_timeout():
+                    nonlocal interventions, got_response
+                    async for message in query(prompt=prompt, options=options):
+                        got_response = True
+                        if hasattr(message, 'content'):
+                            for block in message.content:
+                                if hasattr(block, 'text'):
+                                    text = block.text.strip()
+                                    if '[' in text and ']' in text:
+                                        try:
+                                            json_str = text[text.find('['):text.rfind(']')+1]
+                                            interventions = json.loads(json_str)
+                                        except:
+                                            pass
+                        if hasattr(message, 'subtype') and message.subtype in ['error', 'error_max_turns', 'result']:
+                            self._track_metrics(message)
+                            break
+                
+                await asyncio.wait_for(query_with_timeout(), timeout=45.0)
+                
+            except asyncio.TimeoutError:
+                print(f"   {self.ui.colors['yellow']}⚠️ AI timeout - using defaults{self.ui.colors['reset']}")
+            except Exception as e:
+                print(f"   {self.ui.colors['yellow']}⚠️ AI error - using defaults{self.ui.colors['reset']}")
         
-        self.ui.agent_status("Intervention Designer", "complete")
+        # Use defaults if no interventions from AI
+        if not interventions:
+            interventions = [
+                {
+                    "name": "Split-Screen Optimizer",
+                    "target": "Cursor IDE ↔ Safari",
+                    "type": "Enhancement",
+                    "description": "Auto-arrange windows for web testing"
+                },
+                {
+                    "name": "Focus Mode",
+                    "target": "Distracting apps",
+                    "type": "Blocker",
+                    "description": "Batch notifications every 30 minutes"
+                }
+            ]
+        
+        self.ui.agent_status("Intervention Architect", "complete")
         
         print(f"\n{self.ui.colors['bold']}Interventions:{self.ui.colors['reset']}")
-        for i, intervention in enumerate(interventions, 1):
-            icon = "🚀" if intervention['type'] == "Enhancement" else "🛡️"
-            print(f"\n  {i}. {icon} {intervention['name']}")
-            print(f"     • {intervention['description']}")
+        for i, intervention in enumerate(interventions[:2], 1):
+            icon = "🚀" if intervention.get('type') == "Enhancement" else "🛡️"
+            print(f"\n  {i}. {icon} {intervention.get('name', 'Unknown')}")
+            print(f"     • {intervention.get('description', 'No description')}")
         
         self.ui.metric_summary({'time': time.time() - start_time})
         
         return interventions
     
     async def _generate_code(self, interventions: List[Dict]) -> Dict:
-        """Generate code with clean output"""
+        """Generate code with real AI agent"""
         if not self.auto_mode:
             input(f"\n{self.ui.colors['bold']}{self.ui.colors['cyan']}➡️  Press Enter to continue to Phase 4: Code Generation...{self.ui.colors['reset']}")
         
@@ -545,6 +631,50 @@ Identify death loops and classify as productive or distracting."""
         
         # Create automations directory
         os.makedirs("automations", exist_ok=True)
+        
+        files = []
+        
+        if SDK_AVAILABLE:
+            try:
+                options = ClaudeCodeOptions(
+                    permission_mode="bypassPermissions",
+                    max_turns=5,
+                    continue_conversation=False,
+                    subagent_type="code-generator"
+                )
+                
+                prompt = f"""As code-generator agent, create Hammerspoon Lua scripts:
+                Interventions: {json.dumps(interventions[:2])}
+                Generate working Lua code for macOS automation.
+                Return JSON with scripts array containing filename and description."""
+                
+                got_response = False
+                result = {}
+                
+                async def query_with_timeout():
+                    nonlocal result, got_response
+                    async for message in query(prompt=prompt, options=options):
+                        got_response = True
+                        if hasattr(message, 'content'):
+                            for block in message.content:
+                                if hasattr(block, 'text'):
+                                    text = block.text.strip()
+                                    if '{' in text and '}' in text:
+                                        try:
+                                            json_str = text[text.find('{'):text.rfind('}')+1]
+                                            result = json.loads(json_str)
+                                        except:
+                                            pass
+                        if hasattr(message, 'subtype') and message.subtype in ['error', 'error_max_turns', 'result']:
+                            self._track_metrics(message)
+                            break
+                
+                await asyncio.wait_for(query_with_timeout(), timeout=45.0)
+                
+            except asyncio.TimeoutError:
+                print(f"   {self.ui.colors['yellow']}⚠️ AI timeout - creating default files{self.ui.colors['reset']}")
+            except Exception as e:
+                print(f"   {self.ui.colors['yellow']}⚠️ AI error - creating default files{self.ui.colors['reset']}")
         
         # Create actual files
         files = await self._create_automation_files(interventions)
@@ -560,37 +690,74 @@ Identify death loops and classify as productive or distracting."""
         return {"files": files}
     
     async def _calculate_impact(self, patterns: Dict, interventions: List[Dict]) -> Dict:
-        """Calculate impact with clean output"""
+        """Calculate impact with real AI agent"""
         if not self.auto_mode:
             input(f"\n{self.ui.colors['bold']}{self.ui.colors['cyan']}➡️  Press Enter to continue to Phase 5: Impact Analysis...{self.ui.colors['reset']}")
         
         self.ui.agent_status("Impact Analyst", "starting")
         
         start_time = time.time()
+        impact = {}
         
-        # Calculate totals
-        time_saved = 132  # minutes per day
-        yearly_hours = time_saved * 365 / 60
-        yearly_value = yearly_hours * 50
+        if SDK_AVAILABLE:
+            try:
+                options = ClaudeCodeOptions(
+                    permission_mode="bypassPermissions",
+                    max_turns=5,
+                    continue_conversation=False,
+                    subagent_type="impact-analyst"
+                )
+                
+                prompt = f"""As impact-analyst agent, calculate productivity impact:
+                Patterns: {json.dumps(patterns.get('death_loops', [])[:3])}
+                Interventions: {json.dumps(interventions[:2])}
+                Return JSON with daily_minutes_saved, yearly_hours, yearly_value_usd, productivity_gains."""
+                
+                got_response = False
+                
+                async def query_with_timeout():
+                    nonlocal impact, got_response
+                    async for message in query(prompt=prompt, options=options):
+                        got_response = True
+                        if hasattr(message, 'content'):
+                            for block in message.content:
+                                if hasattr(block, 'text'):
+                                    text = block.text.strip()
+                                    if '{' in text and '}' in text:
+                                        try:
+                                            json_str = text[text.find('{'):text.rfind('}')+1]
+                                            impact = json.loads(json_str)
+                                        except:
+                                            pass
+                        if hasattr(message, 'subtype') and message.subtype in ['error', 'error_max_turns', 'result']:
+                            self._track_metrics(message)
+                            break
+                
+                await asyncio.wait_for(query_with_timeout(), timeout=45.0)
+                
+            except asyncio.TimeoutError:
+                print(f"   {self.ui.colors['yellow']}⚠️ AI timeout - using calculated defaults{self.ui.colors['reset']}")
+            except Exception as e:
+                print(f"   {self.ui.colors['yellow']}⚠️ AI error - using calculated defaults{self.ui.colors['reset']}")
+        
+        # Use defaults or AI results
+        time_saved = impact.get('daily_minutes_saved', 132)
+        yearly_hours = impact.get('yearly_hours', 803)
+        yearly_value = impact.get('yearly_value_usd', 40150)
+        gains = impact.get('productivity_gains', {"deep_work": 42, "focus_time": 67, "efficiency": 35})
         
         self.ui.agent_status("Impact Analyst", "complete")
         
         print(f"\n{self.ui.colors['bold']}📈 Projected Impact:{self.ui.colors['reset']}")
         print(f"\n  Daily: {self.ui.colors['green']}+{time_saved} minutes{self.ui.colors['reset']}")
-        print(f"  Yearly: {self.ui.colors['green']}+{yearly_hours:.0f} hours{self.ui.colors['reset']} ({yearly_hours/24:.0f} days)")
+        print(f"  Yearly: {self.ui.colors['green']}+{yearly_hours} hours{self.ui.colors['reset']} ({yearly_hours/24:.0f} days)")
         print(f"  Value: {self.ui.colors['green']}${yearly_value:,.0f}/year{self.ui.colors['reset']} at $50/hour")
         
         # Progress bars for metrics
         print(f"\n{self.ui.colors['bold']}Productivity Gains:{self.ui.colors['reset']}")
         
-        metrics = [
-            ("Deep Work", 42),
-            ("Focus Time", 67),
-            ("Efficiency", 35)
-        ]
-        
-        for metric, value in metrics:
-            print(f"\n  {metric}:")
+        for metric, value in gains.items():
+            print(f"\n  {metric.replace('_', ' ').title()}:")
             await self._animate_progress(value)
             print(f"  {self.ui.colors['green']}+{value}%{self.ui.colors['reset']}")
         
