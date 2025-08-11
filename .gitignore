@@ -79,3 +79,5 @@ build/
 # Generated automation scripts (contain user-specific data)
 automations/*.lua
 !automations/example.lua
+tests/fixtures/screentime_test.db-shm
+tests/fixtures/screentime_test.db-wal
