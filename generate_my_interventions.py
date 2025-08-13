@@ -116,10 +116,28 @@ def generate_smart_layouts(results):
 
 function setupOptimalLayout()
     local screen = hs.screen.mainScreen():frame()
+    local appsToArrange = {{ "{primary_app}", "{secondary_app}", "{tertiary_app}" }}
+    
+    -- Hide all other apps
+    local allApps = hs.application.runningApplications()
+    for _, app in ipairs(allApps) do
+        local appName = app:name()
+        local shouldHide = true
+        for _, keepApp in ipairs(appsToArrange) do
+            if appName == keepApp then
+                shouldHide = false
+                break
+            end
+        end
+        if shouldHide then
+            app:hide()
+        end
+    end
     
     -- Primary app (left 50%)
     local primary = hs.application.get("{primary_app}")
     if primary then
+        primary:activate()
         local win = primary:mainWindow()
         if win then
             win:setFrame({{
@@ -128,6 +146,7 @@ function setupOptimalLayout()
                 w = screen.w * 0.5,
                 h = screen.h
             }})
+            win:raise()
         end
     end
     
@@ -142,6 +161,7 @@ function setupOptimalLayout()
                 w = screen.w * 0.5,
                 h = screen.h * 0.5
             }})
+            win:raise()
         end
     end
     
@@ -156,6 +176,7 @@ function setupOptimalLayout()
                 w = screen.w * 0.5,
                 h = screen.h * 0.5
             }})
+            win:raise()
         end
     end
     
@@ -164,10 +185,28 @@ end
 
 function setupFocusedLayout()
     local screen = hs.screen.mainScreen():frame()
+    local appsToArrange = {{ "{primary_app}", "{secondary_app}" }}
+
+    -- Hide all other apps
+    local allApps = hs.application.runningApplications()
+    for _, app in ipairs(allApps) do
+        local appName = app:name()
+        local shouldHide = true
+        for _, keepApp in ipairs(appsToArrange) do
+            if appName == keepApp then
+                shouldHide = false
+                break
+            end
+        end
+        if shouldHide then
+            app:hide()
+        end
+    end
     
     -- Primary app gets 70% of screen
     local primary = hs.application.get("{primary_app}")
     if primary then
+        primary:activate()
         local win = primary:mainWindow()
         if win then
             win:setFrame({{
@@ -176,6 +215,7 @@ function setupFocusedLayout()
                 w = screen.w * 0.7,
                 h = screen.h
             }})
+            win:raise()
         end
     end
     
@@ -190,6 +230,7 @@ function setupFocusedLayout()
                 w = screen.w * 0.3,
                 h = screen.h
             }})
+            win:raise()
         end
     end
     
